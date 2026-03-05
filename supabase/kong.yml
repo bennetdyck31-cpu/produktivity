@@ -1,0 +1,317 @@
+_format_version: "2.1"
+_transform: true
+
+###
+### Consumers / Users
+###
+consumers:
+  - username: anon
+    keyauth_credentials:
+      - key: $SUPABASE_ANON_KEY
+  - username: service_role
+    keyauth_credentials:
+      - key: $SUPABASE_SERVICE_KEY
+
+###
+### Access Control Lists
+###
+acls:
+  - consumer: anon
+    group: anon
+  - consumer: service_role
+    group: admin
+
+###
+### API Routes
+###
+
+# PostgreSQL/PostgREST routes
+  - name: rest-v1
+    url: http://rest:3000
+    routes:
+      - name: rest-v1-main
+        strip_path: true
+        paths:
+          - /rest/v1
+        preserve_host: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: true
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - admin
+            - anon
+      - name: request-transformer
+        config:
+          add:
+            headers:
+              - Content-Profile:public
+              - Prefer:return=minimal,throw=hints
+      - name: jwt
+        config:
+          key_claim_name: role
+          secret: $JWT_SECRET
+          claims_to_verify:
+            - exp
+
+# Auth routes
+  - name: auth-v1
+    url: http://auth:9999
+    routes:
+      - name: auth-v1-main
+        strip_path: true
+        paths:
+          - /auth/v1
+        preserve_host: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          headers:
+            - Accept
+            - Accept-Language
+            - Authorization
+            - Content-Language
+            - Content-Type
+            - If-Unmodified-Since
+            - Prefer
+            - Range
+            - X-Client-Info
+            - X-Forwarded-For
+            - X-Forwarded-Host
+            - X-Forwarded-Port
+            - X-Forwarded-Proto
+            - X-Forwarded-Scheme
+            - X-Supabase-Api-Deprecation
+            - X-Supabase-Auth-Client
+            - X-Supabase-Auth-Code
+            - X-Supabase-Auth-Redirect-URL
+            - X-Supabase-Auth-Flow
+            - X-Supabase-DB-Host
+            - X-Supabase-DB-Password
+            - X-Supabase-DB-Port
+            - X-Supabase-DB-User
+          exposed_headers:
+            - Accept-Language
+            - Authorization
+            - Content-Language
+            - Content-Type
+            - If-Unmodified-Since
+            - Link
+            - Range
+            - X-Client-Info
+            - X-Supabase-Api-Deprecation
+            - X-Supabase-Auth-Client
+            - X-Supabase-Auth-Code
+            - X-Supabase-Auth-Redirect-URL
+            - X-Supabase-Auth-Flow
+            - X-Supabase-DB-Host
+            - X-Supabase-DB-Password
+            - X-Supabase-DB-Port
+            - X-Supabase-DB-User
+          credentials: true
+          max_age: 3600000
+          methods:
+            - GET
+            - HEAD
+            - POST
+            - PUT
+            - DELETE
+            - PATCH
+          preflight_continue: false
+          options_forbidden: false
+
+# Realtime routes
+  - name: realtime-v1-ws
+    url: http://realtime:4000/realtime
+    routes:
+      - name: realtime-v1-ws-route
+        strip_path: false
+        paths:
+          - /realtime/v1
+        preserve_host: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - OPTIONS
+            - PUT
+            - DELETE
+            - PATCH
+          headers:
+            - Accept
+            - Accept-Language
+            - Authorization
+            - Content-Language
+            - Content-Type
+            - If-Unmodified-Since
+            - Prefer
+            - Range
+            - X-Client-Info
+            - X-Forwarded-For
+            - X-Forwarded-Host
+            - X-Forwarded-Port
+            - X-Forwarded-Proto
+            - X-Forwarded-Scheme
+            - X-Supabase-Api-Deprecation
+            - X-Supabase-Auth-Client
+            - X-Supabase-Auth-Code
+            - X-Supabase-Auth-Redirect-URL
+            - X-Supabase-Auth-Flow
+          exposed_headers:
+            - Accept-Language
+            - Authorization
+            - Content-Language
+            - Content-Type
+            - If-Unmodified-Since
+            - Link
+            - Range
+            - X-Client-Info
+            - X-Supabase-Api-Deprecation
+          credentials: true
+          max_age: 3600000
+          preflight_continue: false
+          options_forbidden: false
+      - name: request-transformer
+        config:
+          remove:
+            headers:
+              - transfer-encoding
+
+  - name: realtime-v1-rest
+    url: http://realtime:4000/api
+    routes:
+      - name: realtime-v1-rest-route
+        strip_path: true
+        paths:
+          - /realtime/v1/api
+        preserve_host: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: true
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - admin
+            - anon
+
+# Storage routes
+  - name: storage-v1
+    url: http://storage:5000
+    routes:
+      - name: storage-v1-main
+        strip_path: true
+        paths:
+          - /storage/v1
+        preserve_host: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          headers:
+            - Accept
+            - Accept-Language
+            - Authorization
+            - Content-Language
+            - Content-Type
+            - If-Unmodified-Since
+            - Prefer
+            - Range
+            - X-Client-Info
+            - X-Forwarded-For
+            - X-Forwarded-Host
+            - X-Forwarded-Port
+            - X-Forwarded-Proto
+            - X-Forwarded-Scheme
+            - X-Supabase-Api-Deprecation
+          exposed_headers:
+            - Accept-Language
+            - Authorization
+            - Content-Language
+            - Content-Type
+            - If-Unmodified-Since
+            - Link
+            - Range
+            - X-Client-Info
+            - X-Supabase-Api-Deprecation
+          credentials: true
+          max_age: 3600000
+          methods:
+            - GET
+            - HEAD
+            - POST
+            - PUT
+            - DELETE
+            - PATCH
+            - OPTIONS
+          preflight_continue: false
+          options_forbidden: false
+      - name: key-auth
+        config:
+          hide_credentials: true
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - admin
+            - anon
+
+# Edge Function routes
+  - name: functions-v1
+    url: http://host.docker.internal:54321
+    routes:
+      - name: functions-v1-main
+        strip_path: true
+        paths:
+          - /functions/v1
+        preserve_host: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: cors
+
+###
+### Service overrides for Kong
+###
+services:
+  - name: rest-v1
+    host: rest
+    port: 3000
+  - name: auth-v1
+    host: auth
+    port: 9999
+  - name: realtime-v1
+    host: realtime
+    port: 4000
+  - name: storage-v1
+    host: storage
+    port: 5000

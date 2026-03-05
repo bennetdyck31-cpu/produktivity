@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+taskgrid/node_modules/
+
+# Build output
+dist/
+taskgrid/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Supabase local
+supabase/.env
+supabase/.branches
